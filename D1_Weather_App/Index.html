@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Weather APP</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="card">
+    <div class="search">
+        <input id="cityInput" type="text" placeholder="Enter City Name" spellcheck="false"/>
+        <button id="searchButton">
+            <img src="images/search.png" alt="search"/>
+        </button>
+    </div>
+
+    <div id="error" class="error">
+        <p>Invalid City Name</p>
+    </div>
+
+    <div id="weather" class="weather">
+        <img id="weatherIcon" src="images/default.png" class="weather-icon" alt="Weather Icon"/>
+        <h1 id="temperature" class="temperature">22°C</h1>
+        <h2 id="city" class="city">New York</h2>
+        <div class="detail">
+            <div class="col">
+                <img src="images/humidity.png" alt="Humidity"/>
+                <div>
+                    <p id="humidity" class="humidity">50%</p>
+                    <p>Humidity</p>
+                </div>
+            </div>
+            <div class="col">
+                <img src="images/wind.png" alt="Wind Speed"/>
+                <div>
+                    <p id="wind" class="wind">15 km/h</p>
+                    <p>Wind Speed</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Constants for API configuration
+    const API_KEY = "0683f1ecb217390ce4c1ddd278796bde";
+    const API_URL = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+
+    // Selectors
+    const elements = {
+        cityInput: document.getElementById("cityInput"),
+        searchButton: document.getElementById("searchButton"),
+        errorDiv: document.getElementById("error"),
+        weatherDiv: document.getElementById("weather"),
+        city: document.getElementById("city"),
+        temperature: document.getElementById("temperature"),
+        humidity: document.getElementById("humidity"),
+        wind: document.getElementById("wind"),
+        weatherIcon: document.getElementById("weatherIcon")
+    };
+
+    // Icon map for weather conditions
+    const WEATHER_ICONS = {
+        Clouds: "images/clouds.png",
+        Clear: "images/clear.png",
+        Rain: "images/rain.png",
+        Drizzle: "images/drizzle.png",
+        Mist: "images/mist.png",
+        Default: "images/default.png"
+    };
+
+    // Fetch weather data
+    const fetchWeather = async (city) => {
+        try {
+            const response = await fetch(`${API_URL}${city}&appid=${API_KEY}`);
+            if (!response.ok) throw new Error("City not found");
+
+            const data = await response.json();
+            updateWeatherUI(data);
+        } catch (error) {
+            displayError(true);
+        }
+    };
+
+    // Update UI with weather data
+    const updateWeatherUI = (data) => {
+        elements.city.textContent = data.name;
+        elements.temperature.textContent = `${Math.round(data.main.temp)}°C`;
+        elements.humidity.textContent = `${data.main.humidity}%`;
+        elements.wind.textContent = `${data.wind.speed} km/h`;
+
+        const weatherMain = data.weather[0].main;
+        elements.weatherIcon.src = WEATHER_ICONS[weatherMain] || WEATHER_ICONS.Default;
+
+        displayError(false);
+    };
+
+    // Toggle error message
+    const displayError = (isError) => {
+        elements.errorDiv.style.display = isError ? "block" : "none";
+        elements.weatherDiv.style.display = isError ? "none" : "block";
+    };
+
+    // Event listeners
+    elements.searchButton.addEventListener("click", () => {
+        const city = elements.cityInput.value.trim();
+        if (city) fetchWeather(city);
+    });
+
+    elements.cityInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") elements.searchButton.click();
+    });
+</script>
+</body>
+</html>
