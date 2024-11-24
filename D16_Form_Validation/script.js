@@ -4,6 +4,7 @@ var email_error = document.getElementById('email-error');
 var message_error = document.getElementById('message-error');
 var submit_error = document.getElementById('submit-error');
 
+// React Validator Package
 function validateName() {
     var name = document.getElementById('name').value;
     if (name.length === 0) {
